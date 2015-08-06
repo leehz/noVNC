@@ -40,26 +40,8 @@
     <script type='text/javascript'
         src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
     -->
-        <script src="include/util.js"></script> 
+        <script src="include/util.js"></script>
 </head>
-<style>
-.btn {
-	border: none;//1px solid #BDCFE4; 
-	border-radius: 3px;
-	display: inline-block;
-	color: #fff;
-	background: #f05c56;
-	margin: 5px;
-	padding: 5px 20px;
-	width: 50px;
-	text-align: center;
-	font-size: 11px;
-	cursor:pointer; 
-}
-.btns {
-	display: block;
-}
-</style>
 
 <body style="margin: 0px;">
     <div id="noVNC_screen">
@@ -82,22 +64,14 @@
                             </div></td>
                 </tr></table>
             </div>
-	<div style="display:inline-block; overflow-x:auto;overflow-y:hidden;position:absolute">
-	<div id="cent_vm"  style="float:left; display:inline-block; margin: 0 10px;overflow-x:auto;overflow-y:hidden">
-		<div class="btns"><div class="btn" id="big_btn">BIGGER</div><div class="btn" id="small_btn">SMALLER</div></div>
-	    <canvas id="cent_canvas" width="600px" height="400px">
+	    <canvas id="cent_canvas" width="330px" height="20px">
 	    Canvas not supported.
 	    </canvas>
-	</div>
-
-	<div id="xp_vm" style="float:left;display:inline-block; margin: 0 10px;overflow-x:auto; overflow-y:hidden">  
-		<div class="btns"><div class="btn" id="big_btn1">BIGGER</div><div class="btn" id="small_btn1">SMALLER</div></div>
-	    <canvas id="xp_canvas" width="600px" height="400px">
+	    <canvas id="xp_canvas" width="330px" height="20px">
 	    Canvas not supported.
 	    </canvas>
-	</div>
         </div>
-	</div>
+
         <script>
         /*jslint white: false */
         /*global window, $, Util, RFB, */
@@ -110,8 +84,7 @@
 
         var rfb, rfb1;
         var resizeTimeout;
-	var dom_cent, display, dom_xp, display1;
-	var ctrl_h;
+
 
 
 //### edit
@@ -121,9 +94,8 @@ function getParameterByName(name) {
     return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 }
 
-//##
-        function UIresize() {
-            if (!WebUtil.getQueryVar('resize', false)) {
+function UIresize() {
+            if (WebUtil.getQueryVar('resize', false)) {
                 var innerW = window.innerWidth;
                 var innerH = window.innerHeight;
                 var controlbarH = $D('noVNC_status_bar').offsetHeight;
@@ -132,34 +104,23 @@ function getParameterByName(name) {
                     rfb.setDesktopSize(innerW, innerH - controlbarH - padding);
             }
         }
-        function FBUComplete(rfb, fbu) {
+  function FBUComplete(rfb, fbu) {
             UIresize();
-            rfb.set_onFBUComplete(function() { 
-//edit 
-/*
- 	dom_cent = document.getElementById("cent_canvas");
-	dom_xp = document.getElementById("xp_canvas");
-	
-	ctrl_h = window.innerHeight - $D('noVNC_status_bar').offsetHeight - 5;
-
-	display = rfb.get_display();
-	display1 = rfb1.get_display();
-	//display.autoscale(   400, 200, 'downscale');
-	if (dom_cent.width + dom_xp.width > window.innerWidth)
-	{
-		var cent_width = ( window.innerWidth - 10*4 )/(dom_cent.width + dom_xp.width)*dom_cent.width;
-		var xp_width = (window.innerWidth - 10*8)/(dom_cent.width + dom_xp.width)*dom_xp.width;
-		display.autoscale(cent_width, dom_cent.height/dom_cent.width*cent_width, 'downscale');	
-		display1.autoscale(xp_width, dom_xp.height/dom_xp.width*xp_width, 'downscale');	
-	} else {
-	display.autoscale(   dom_cent.width/dom_cent.height*ctrl_h , ctrl_h,  'downscale');
-	display1.autoscale(   dom_xp.width/dom_xp.height*ctrl_h , ctrl_h,  'downscale');
-//	display1.autoscale(   dom_xp.width/dom_xp.height*window.innerHeight , window.innerHeight,  'downscale');
-//
-	}
-*/
-});
+            rfb.set_onFBUComplete(function() { });
         }
+ window.onresize = function () {
+            // When the window has been resized, wait until the size remains
+            // the same for 0.5 seconds before sending the request for changing
+            // the resolution of the session
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function(){
+                UIresize();
+            }, 500);
+        };
+
+
+//##
+
         function passwordRequired(rfb) {
             var msg;
             msg = '<form onsubmit="return setPassword();"';
@@ -248,12 +209,11 @@ function getParameterByName(name) {
             $D('xvpResetButton').onclick = xvpReset;
 
             WebUtil.init_logging(WebUtil.getQueryVar('logging', 'warn'));
-            document.title = unescape(WebUtil.getQueryVar('title', 'CCMP-Web-VNC'));
+            document.title = unescape(WebUtil.getQueryVar('title', 'noVNC'));
             // By default, use the host and port of server that served this file
-            //host = WebUtil.getQueryVar('host', window.location.hostname);
+            host = WebUtil.getQueryVar('host', window.location.hostname);
 		host = getParameterByName("host");
 		host1 = getParameterByName("host1");
-			console.log(host1);
 		port = getParameterByName("port");
 		port1 = getParameterByName("port1");
 		
@@ -261,7 +221,7 @@ function getParameterByName(name) {
 
             // if port == 80 (or 443) then it won't be present and should be
             // set manually
-           /* if (!port) {
+            if (!port) {
                 if (window.location.protocol.substring(0,5) == 'https') {
                     port = 443;
                 }
@@ -269,7 +229,7 @@ function getParameterByName(name) {
                     port = 80;
                 }
             }
-	*/
+
             // If a token variable is passed in, set the parameter in a cookie.
             // This is used by nova-novncproxy.
             token = WebUtil.getQueryVar('token', null);
@@ -307,10 +267,8 @@ function getParameterByName(name) {
 
             rfb.connect(host, port, password, path);
           //  rfb.connect(host1, port1, password, path);
-		console.log("rfb connected");
 
 
-		console.log("catch");
             try {
                 rfb1 = new RFB({'target':       $D('xp_canvas'),
                                'encrypt':      WebUtil.getQueryVar('encrypt',
@@ -319,7 +277,7 @@ function getParameterByName(name) {
                                'true_color':   WebUtil.getQueryVar('true_color', true),
                                'local_cursor': WebUtil.getQueryVar('cursor', true),
                                'shared':       WebUtil.getQueryVar('shared', true),
-                               'view_only':    WebUtil.getQueryVar('view_only', true),
+                               'view_only':    WebUtil.getQueryVar('view_only', false),
                                'onUpdateState':  updateState,
                                'onXvpInit':    xvpInit,
                                'onPasswordRequired':  passwordRequired,
@@ -330,68 +288,12 @@ function getParameterByName(name) {
                 return function(){console.log(rfb1);}; // don't continue trying to connect
                // return; // don't continue trying to connect
             }
-		console.log("catch1");
             rfb1.connect(host1, port1, password, path);
-// edit
- 	dom_cent = document.getElementById("cent_canvas");
-
-	display = rfb.get_display();
-	display.autoscale(dom_cent.width/dom_cent.height*200 , 200, 'downscale');
-	//alert("height"+dom_cent.height);
-
-
-	display = rfb.get_display();
-	display1 = rfb1.get_display();
-
-
-// onload event listener;
-		keyboard = new Keyboard({'target': xp_vm});
-		keyboard1 = new Keyboard({'target': cent_vm});
-            	mouse    = new Mouse({'target': $D("xp_canvas"),});
-
-};
-//
-
-
-/*
-	window.onload = function(){
-	while(true)
-	{
-	if(rfb._rfb_state == "normal")
-	{
- 	dom_cent = document.getElementById("cent_canvas");
-	dom_xp = document.getElementById("xp_canvas");
-		var cent_width = ( window.innerWidth - 10*4 )/(dom_cent.width + dom_xp.width)*dom_cent.width;
-		var xp_width = (window.innerWidth - 10*8)/(dom_cent.width + dom_xp.width)*dom_xp.width;
-		rfb.get_mouse().set_scale(display.autoscale(cent_width, dom_cent.height/dom_cent.width*cent_width, 'downscale'));	
-		rfb.get_mouse().set_scale(display.autoscale(100, 200, 'downscale'));
-		rfb1.get_mouse().set_scale(display1.autoscale(xp_width, dom_xp.height/dom_xp.width*xp_width, 'downscale'));	
-		//alert("get here onload");
-	} else {
-		sleep(1000);
-	}
-	}
         };
-*/
-	var btn = document.getElementById("big_btn");
-	var btn1 = document.getElementById("big_btn1");
-	var btn_s = document.getElementById("small_btn");
-	var btn_s1 = document.getElementById("small_btn1");
-	var a = document.getElementById("xp_canvas");
 
 
 
-	btn1.onclick = btn.onclick = function(){
-	rfb.get_mouse().set_scale(display.autoscale(1024, 600, 'downscale'));
-	rfb1.get_mouse().set_scale(display1.autoscale(1024, 600, 'downscale'));
-	//a.setAttribute("display", "none");
-	a.setAttribute("visibility","hidden");
-};
 
-	btn_s1.onclick = btn_s.onclick = function(){
-	rfb.get_mouse().set_scale(display.autoscale(400, 200, 'downscale'));
-	rfb1.get_mouse().set_scale(display1.autoscale(400, 200, 'downscale'));
-	};
 
         </script>
 
