@@ -294,7 +294,7 @@ function getParameterByName(name) {
                                'true_color':   WebUtil.getQueryVar('true_color', true),
                                'local_cursor': WebUtil.getQueryVar('cursor', true),
                                'shared':       WebUtil.getQueryVar('shared', true),
-                               'view_only':    WebUtil.getQueryVar('view_only', false),
+                               'view_only':    WebUtil.getQueryVar('view_only', true),
                                'onUpdateState':  updateState,
                                'onXvpInit':    xvpInit,
                                'onPasswordRequired':  passwordRequired,
@@ -355,6 +355,7 @@ function getParameterByName(name) {
 
 
 window.onload = function(){
+    $D('noVNC_status_bar').style.display = "none";
     console.log("rfb state:"+rfb._rfb_state);
     var int = setInterval(function(){
             if(rfb._rfb_state == "normal" && rfb1._rfb_state == "normal")
@@ -405,14 +406,17 @@ window.onload = function(){
     var cent_cvs = document.getElementById("cent_canvas");
 
 
-    cent_cvs.onclick = function(){
-            var rfb_new;
-            var rfb_host =  rfb._rfb_host;
-            var rfb_port = rfb._rfb_port;
-            var rfb_password = rfb._rfb_password;
-            var rfb_path = rfb._rfb_path;
-            //var 
 
+    var rfb_new, rfb1_new;
+
+    cent_cvs.onclick = function(){
+        if($D('canvas_new') )
+        { close_func(); return ; }
+
+    var rfb_host =  rfb._rfb_host;
+    var rfb_port = rfb._rfb_port;
+    var rfb_password = rfb._rfb_password;
+    var rfb_path = rfb._rfb_path;
             // disconnect
          //rfb.disconnect();
          
@@ -422,12 +426,13 @@ window.onload = function(){
             canvas_new.setAttribute("id", "canvas_new");
             document.getElementById("cent_vm").appendChild(canvas_new);
             $D('xp_vm').style.display = "none";
-            $D('cent_canvas').style.display = "none";
+            //$D('cent_canvas').style.display = "none";
             btn.style.display = "none";
             btn_s.style.display = "none";
             $D('close_btn').style.display = "block";
 
-        $D('close_btn').onclick = function (){
+        $D('close_btn').onclick =  close_func;
+        function close_func(){
             rfb_new.disconnect();
             $D('canvas_new').parentNode.removeChild($D('canvas_new'));
             $D('xp_vm').style.display = 'inline-block';
@@ -437,7 +442,11 @@ window.onload = function(){
             $D('close_btn').style.display = "none";
             //rfb.connect(rfb_host, rfb_port, rfb_password, rfb_path );
             //console.log("connect "+rfb_host+"  "+rfb_port);
-        };
+        }
+
+    function hello(){
+        alert("hell0");
+    }
            // rfb1.connect(host1, port1, password, path);
             try {
                 rfb_new = new RFB({'target':       $D('canvas_new'),
@@ -471,7 +480,8 @@ window.onload = function(){
     };
 
     xp_cvs.onclick = function(){
-            var rfb1_new;
+            if ($D('canvas1_new'))
+            { close_func(); return; }
             var rfb1_host =  rfb1._rfb_host;
             var rfb1_port = rfb1._rfb_port;
             var rfb1_password = rfb1._rfb_password;
@@ -479,7 +489,7 @@ window.onload = function(){
             //var 
 
             // disconnect
-         rfb1.disconnect();
+         //rfb1.disconnect();
          
          var canvas1_new = document.createElement("canvas");
             canvas1_new.innerText = "Canvas not supported";
@@ -490,10 +500,20 @@ window.onload = function(){
             btn1.style.display = "none";
             btn_s1.style.display = "none";
             $D('close_btn1').style.display = "block";
+        $D('close_btn1').onclick =  close_func;
+        function close_func(){
+            rfb1_new.disconnect();
+            $D('canvas1_new').parentNode.removeChild($D('canvas1_new'));
+            $D('cent_vm').style.display = 'inline-block';
+            $D('xp_canvas').style.display = "inline-block";
+            $D('big_btn1').style.display = "inline-block";
+            $D('small_btn1').style.display = "inline-block";
+            $D('close_btn1').style.display = "none";
+            //rfb.connect(rfb_host, rfb_port, rfb_password, rfb_path );
+            //console.log("connect "+rfb_host+"  "+rfb_port);
+        }
 
-        $D('close_btn1').onclick = function (){
-            alert("aa");
-        };
+        $D('close_btn1').onclick = close_func;
 
 
            // rfb1.connect(host1, port1, password, path);
