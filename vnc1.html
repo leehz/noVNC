@@ -84,14 +84,14 @@
             </div>
 	<div style="display:inline-block; overflow-x:auto;overflow-y:hidden;position:absolute">
 	<div id="cent_vm"  style="float:left; display:inline-block; margin: 0 10px;overflow-x:auto;overflow-y:hidden">
-		<div class="btns"><div class="btn" id="big_btn">BIGGER</div><div class="btn" id="small_btn">SMALLER</div></div>
+		<div class="btns"><div class="btn" id="big_btn">BIGGER</div><div class="btn" id="small_btn">SMALLER</div><div class="btn" id="close_btn" style="display:none">CLOSE</div></div>
 	    <canvas id="cent_canvas" width="600px" height="400px">
 	    Canvas not supported.
 	    </canvas>
 	</div>
 
 	<div id="xp_vm" style="float:left;display:inline-block; margin: 0 10px;overflow-x:auto; overflow-y:hidden">  
-		<div class="btns"><div class="btn" id="big_btn1">BIGGER</div><div class="btn" id="small_btn1">SMALLER</div></div>
+		<div class="btns"><div class="btn" id="big_btn1">BIGGER</div><div class="btn" id="small_btn1">SMALLER</div><div class="btn" id="close_btn1" style="display:none">CLOSE</div></div>
 	    <canvas id="xp_canvas" width="600px" height="400px">
 	    Canvas not supported.
 	    </canvas>
@@ -357,7 +357,7 @@ function getParameterByName(name) {
 window.onload = function(){
     console.log("rfb state:"+rfb._rfb_state);
     var int = setInterval(function(){
-            if(rfb._rfb_state == "normal")
+            if(rfb._rfb_state == "normal" && rfb1._rfb_state == "normal")
             {  
                 //rfb.get_display().set_scale(0.5);
                 rfb.get_display().autoscale(400,200, 'scale');
@@ -365,12 +365,12 @@ window.onload = function(){
                 rfb1.get_display().autoscale(400,200, 'scale');
                 clearInterval(int);
             }
-            if(rfb1._rfb_state == "normal")
+  /*          if(rfb1._rfb_state == "normal")
             {  
                 //rfb1.get_display().set_scale(0.4);
                 rfb1.get_display().autoscale(400,200, 'scale');
                 clearInterval(int);
-            }
+            } */
             }, 100);
 
 }
@@ -404,25 +404,40 @@ window.onload = function(){
 
     var cent_cvs = document.getElementById("cent_canvas");
 
-    xp_cvs.onclick = function(){
+
+    cent_cvs.onclick = function(){
             var rfb_new;
-            var rfb1_host =  rfb1._rfb_host;
-            var rfb1_port = rfb1._rfb_port;
-            var rfb1_password = rfb1._rfb_password;
-            var rfb1_path = rfb1._rfb_path;
+            var rfb_host =  rfb._rfb_host;
+            var rfb_port = rfb._rfb_port;
+            var rfb_password = rfb._rfb_password;
+            var rfb_path = rfb._rfb_path;
             //var 
 
             // disconnect
-         rfb1.disconnect();
+         //rfb.disconnect();
          
          var canvas_new = document.createElement("canvas");
             canvas_new.innerText = "Canvas not supported";
-            document.getElementById("xp_canvas").parentNode.removeChild(document.getElementById("xp_canvas"));
+           // document.getElementById("cent_canvas").parentNode.removeChild(document.getElementById("cent_canvas"));
             canvas_new.setAttribute("id", "canvas_new");
-            document.getElementById("xp_vm").appendChild(canvas_new);
-            $D('cent_vm').style.display = "none";
-            btn1.style.display = "none";
-            btn_s1.style.display = "none";
+            document.getElementById("cent_vm").appendChild(canvas_new);
+            $D('xp_vm').style.display = "none";
+            $D('cent_canvas').style.display = "none";
+            btn.style.display = "none";
+            btn_s.style.display = "none";
+            $D('close_btn').style.display = "block";
+
+        $D('close_btn').onclick = function (){
+            rfb_new.disconnect();
+            $D('canvas_new').parentNode.removeChild($D('canvas_new'));
+            $D('xp_vm').style.display = 'inline-block';
+            $D('cent_canvas').style.display = "inline-block";
+            $D('big_btn').style.display = "inline-block";
+            $D('small_btn').style.display = "inline-block";
+            $D('close_btn').style.display = "none";
+            //rfb.connect(rfb_host, rfb_port, rfb_password, rfb_path );
+            //console.log("connect "+rfb_host+"  "+rfb_port);
+        };
            // rfb1.connect(host1, port1, password, path);
             try {
                 rfb_new = new RFB({'target':       $D('canvas_new'),
@@ -444,10 +459,72 @@ window.onload = function(){
                     console.log(" create rfb_new failed");
                // return; // don't continue trying to connect
             }
-		console.log("new canvas connected");
-            rfb_new.connect(rfb1_host, rfb1_port, rfb1_password, rfb1_path );
+		console.log("connect "+rfb_host+" "+rfb_port+" .");
+            rfb_new.connect(rfb_host, rfb_port, rfb_password, rfb_path );
 
-        
+/*
+            var close_btn = document.createElement('div');
+            close_btn.id = "close_btn";
+            close_btn.innerText = "<img src="..">";
+            close_btn.class = "btn";
+            */
+    };
+
+    xp_cvs.onclick = function(){
+            var rfb1_new;
+            var rfb1_host =  rfb1._rfb_host;
+            var rfb1_port = rfb1._rfb_port;
+            var rfb1_password = rfb1._rfb_password;
+            var rfb1_path = rfb1._rfb_path;
+            //var 
+
+            // disconnect
+         rfb1.disconnect();
+         
+         var canvas1_new = document.createElement("canvas");
+            canvas1_new.innerText = "Canvas not supported";
+            //document.getElementById("xp_canvas").parentNode.removeChild(document.getElementById("xp_canvas"));
+            canvas1_new.setAttribute("id", "canvas1_new");
+            document.getElementById("xp_vm").appendChild(canvas1_new);
+            $D('cent_vm').style.display = "none";
+            btn1.style.display = "none";
+            btn_s1.style.display = "none";
+            $D('close_btn1').style.display = "block";
+
+        $D('close_btn1').onclick = function (){
+            alert("aa");
+        };
+
+
+           // rfb1.connect(host1, port1, password, path);
+            try {
+                rfb1_new = new RFB({'target':       $D('canvas1_new'),
+                               'encrypt':      WebUtil.getQueryVar('encrypt',
+                                        (window.location.protocol === "https:")),
+                               'repeaterID':   WebUtil.getQueryVar('repeaterID', ''),
+                               'true_color':   WebUtil.getQueryVar('true_color', true),
+                               'local_cursor': WebUtil.getQueryVar('cursor', true),
+                               'shared':       WebUtil.getQueryVar('shared', true),
+                               'view_only':    WebUtil.getQueryVar('view_only', false),
+                               'onUpdateState':  updateState,
+                               'onXvpInit':    xvpInit,
+                               'onPasswordRequired':  passwordRequired,
+                               'onFBUComplete': FBUComplete});
+            } catch (exc) {
+               
+                updateState(null, 'fatal', null, 'Unable to create RFB client -- ' + exc);
+                return function(){console.log("rfb_new");}; // don't continue trying to connect
+                    console.log(" create rfb_new failed");
+               // return; // don't continue trying to connect
+            }
+		console.log("connect "+rfb1_host+" "+rfb1_port+" .");
+            rfb1_new.connect(rfb1_host, rfb1_port, rfb1_password, rfb1_path );
+/*
+            var close_btn = document.createElement('div');
+            close_btn.id = "close_btn";
+            close_btn.innerText = "<img src="..">";
+            close_btn.class = "btn";
+            */
     };
 
 	btn1.onclick = btn.onclick = function(){
