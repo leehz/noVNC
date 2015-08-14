@@ -41,7 +41,11 @@
         src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
     -->
         <script src="include/util.js"></script> 
-</head>
+
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+	<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+	<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
 <style>
 .btn {
 	border: none;//1px solid #BDCFE4; 
@@ -61,6 +65,7 @@
 }
 </style>
 
+</head>
 <body style="margin: 0px;">
     <div id="noVNC_screen">
             <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px;">
@@ -82,7 +87,7 @@
                             </div></td>
                 </tr></table>
             </div>
-	<div style="display:inline-block; overflow-x:auto;overflow-y:hidden;position:absolute">
+	<div  id="vms"  style="display:inline-block; position:absolute">  
 	<div id="cent_vm"  style="float:left; display:inline-block; margin: 0 10px;overflow-x:auto;overflow-y:hidden">
 		<div class="btns"><div class="btn" id="big_btn">BIGGER</div><div class="btn" id="small_btn">SMALLER</div><div class="btn" id="close_btn" style="display:none">CLOSE</div></div>
 	    <canvas id="cent_canvas" width="600px" height="400px">
@@ -356,14 +361,29 @@ function getParameterByName(name) {
 
 window.onload = function(){
     $D('noVNC_status_bar').style.display = "none";
-    console.log("rfb state:"+rfb._rfb_state);
+   // console.log("rfb state:"+rfb._rfb_state);
+    
+    $("#vms").css("width", "100%");
+    $("#vms").css("height", "100%");
+    $("#cent_vm").addClass("drabbable");
+    $("#xp_vm").addClass("drabbable");
+    $("#xp_vm").addClass("resizable");
+    $("#xp_vm").draggable();
+    $("#cent_vm").draggable();
+    
+
     var int = setInterval(function(){
             if(rfb._rfb_state == "normal" && rfb1._rfb_state == "normal")
             {  
                 //rfb.get_display().set_scale(0.5);
                 rfb.get_display().autoscale(400,200, 'scale');
                 //rfb1.get_display().set_scale(0.4);
-                rfb1.get_display().autoscale(400,200, 'scale');
+                rfb1.get_display().autoscale(400, 200, 'scale');
+
+             //   if (rfb._fb_width/rfb._height > rfb1._fb_width/rfb._height)
+                if($D('cent_canvas').style.width > $D('xp_canvas').style.width)
+                { $D('cent_canvas').style.width = $D('xp_canvas').style.width; } else
+                {  $D('xp_canvas').style.width = $D('cent_canvas').style.width; }
                 clearInterval(int);
             }
   /*          if(rfb1._rfb_state == "normal")
@@ -385,9 +405,10 @@ window.onload = function(){
 	dom_xp = document.getElementById("xp_canvas");
 		var cent_width = ( window.innerWidth - 10*4 )/(dom_cent.width + dom_xp.width)*dom_cent.width;
 		var xp_width = (window.innerWidth - 10*8)/(dom_cent.width + dom_xp.width)*dom_xp.width;
-		rfb.get_mouse().set_scale(display.autoscale(cent_width, dom_cent.height/dom_cent.width*cent_width, 'downscale'));	
-		rfb.get_mouse().set_scale(display.autoscale(100, 200, 'downscale'));
-		rfb1.get_mouse().set_scale(display1.autoscale(xp_width, dom_xp.height/dom_xp.width*xp_width, 'downscale'));	
+		//rfb.get_mouse().set_scale(display.autoscale(cent_width, dom_cent.height/dom_cent.width*cent_width, 'downscale'));	
+		//rfb.get_mouse().set_scale(display.autoscale(100, 200, 'downscale'));
+		//rfb1.get_mouse().set_scale(display1.autoscale(xp_width, dom_xp.height/dom_xp.width*xp_width, 'downscale'));	
+        rfb.get_mouse().set_scale(0.5);
 		//alert("get here onload");
 	} else {
         //for(var date = new Date(); Date.now() - date <= 5000; console.log(rfb.rfb_state));
